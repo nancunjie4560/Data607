@@ -1,0 +1,143 @@
+---
+title: "Week1 Assignment"
+author: "Chunjie Nan"
+date: "28/08/2021"
+output:
+  html_document:
+    df_print: paged
+---
+The author of "How Americans Like Their Stake" brings out a question about how does a 
+risk-taking behavior associate with steak in rare. Along with other variables, he found that
+the the risk-taking behavior is statistically insignificant to steak rareness.
+https://fivethirtyeight.com/features/how-americans-like-their-steak/
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(devtools)
+library(RCurl)
+library(plyr)
+library(knitr)
+
+```
+
+### Import data as csv 
+
+[linked phrase](https://raw.githubusercontent.com/fivethirtyeight/data/master/steak-survey/steak-risk-survey.csv)
+
+```{r import_data}
+
+
+a<-getURL("https://raw.githubusercontent.com/fivethirtyeight/data/master/steak-survey/steak-risk-survey.csv")
+b<-data.frame(read.csv(text=a, header=T))
+head(b) 
+b<-b[-1,-2]  # removed the first row because it is an empty row, and removed the 2nd row which is out of my analysis target.
+head(b)
+dim(b)
+```
+
+### Rename the column headers
+
+```{r}
+
+data<-rename(b,c("RespondentID"="ID","Do.you.ever.smoke.cigarettes."="Cigarettes","Do.you.ever.drink.alcohol."="Alcohol","Do.you.ever.gamble."="Gamble","Have.you.ever.been.skydiving."="Skydiving", "Do.you.ever.drive.above.the.speed.limit."="Drive_limit", "Have.you.ever.cheated.on.your.significant.other."="Cheat","Do.you.eat.steak."="Steak","How.do.you.like.your.steak.prepared."="prepared","Gender"="Gender","VAge"="Age","Household.Income"="Income_range", "Education"="Education", "Location..Census.Region."= "Region"))
+
+head(data)
+str(data)
+data$ID<-as.character(data$ID)   # change the ID to Character, since the number in ID is not meaningful numbers.
+str(data)
+```
+
+
+### Data cleaning
+```{r}
+
+# I have seen some problems in this data set. There  are empty/blank within the variable of Gender and Prepared. 
+# My idea here is convert the blank column to NA, then drop the row that has NA from the data set.
+
+
+summary(as.factor(data$Gender))  # There are 36 missing in Gender.
+summary(as.factor(data$prepared)) # There are 118 missing in Prepared.
+
+
+missing_Gender<-data$Gender ==""     # Make a new variable missing in gender.
+data$missing_Gender<-ifelse(missing_Gender==TRUE, NA,"Keep")  # convert the empty column to NA
+missing_Prepared<-data$prepared =="" # Make a new variable missing in prepared.
+data$missing_Prepared<-ifelse(missing_Prepared==TRUE, NA, "Keep")  #convert the empty column to NA
+
+
+data<-data[!is.na(data$missing_Gender),]
+data<-data[!is.na(data$missing_Prepared),]
+
+# now I can see the rows are dropped successfully, and the data observation is dropped from 550 to 412.
+```
+
+
+
+
+
+
+### How many female like the steak in rare?
+
+```{r}
+
+steak_rare_female<- subset(data, Gender=="Female" & prepared =="Rare")
+steak_rare_female
+count(steak_rare_female$Gender) # 12 female like the steak rare
+count(data$Gender=="Female")# There are 200 female in this data set.
+12/200      # about 6 % of female in this data like the steak in rare.
+
+```
+
+
+
+
+Therefore, there are 12 female like the steak rare which is about 6 % of female in this data like the steak in rare.
+
+
+
+### How many male like the steak in rare?
+
+```{r, echo=FALSE}
+steak_rare_male<-subset(data, Gender=="Male" & prepared =="Rare")
+steak_rare_male
+count(steak_rare_male$Gender)
+count(data$Gender=="Male")
+10/212
+```
+There are 10 male like the steak in rare which means about 4.7 % of the male like the steak in rare in this data set.
+
+
+
+```{r}
+library(ggplot2)
+ggplot(data=data)+
+  geom_bar(mapping=aes(x=prepared,fill=Gender))+
+  ggtitle("Female VS Male in steak")
+
+
+ggplot(data=data)+
+  geom_bar(mapping=aes(x=prepared,fill=prepared))
+
+  
+```
+From above two plots, we can see that Female and Male have the similar pattern in make their steak prepared. The proportions are very close to each other.
+
+
+
+How many steak lovers like the stake in rare?
+```{r,echo=FALSE}
+
+
+steak_lover_rare<- subset(data, prepared == "Rare" & Steak =="Yes")
+steak_lover_rare
+count(steak_lover_rare$Steak)
+
+```
+
+I found that there are 22 steak lovers like eating steak in rare. This is exactly the sum of as above, 10 of male love steak in rare and 12 female love steak in rare. 
+
+
+### Conclusion
+The data explains that there are 12 females, and 10 males like the steak in rare.
+Also, we found that people who cook the steak in rare are all steak lovers with total number of 22
+
