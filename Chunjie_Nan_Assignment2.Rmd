@@ -1,0 +1,69 @@
+---
+title: "Chunjie_Nan_Assignment2"
+author: "Chunjie Nan"
+date: "9/5/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+
+I have asked five friends and get a simple survey of rating recent movies they have seen. Six movies were picked, and each friend of mine have rated according to their satisfaction of movies. The table was created with MySQl, and exported to Github as a CSV file.SQL code on git hub is here[linked phrase]https://raw.githubusercontent.com/nancunjie4560/Data607/master/Movies.sql
+
+
+```{r}
+library(kableExtra)
+library(RMySQL)
+library(RCurl)
+library(DBI)
+library(ggplot2)
+```
+
+
+### Importing data from Github
+```{r}
+movie_data<- read.csv(url('https://raw.githubusercontent.com/nancunjie4560/Data607/master/Movies.csv'))
+str(movie_data)
+```
+
+There were many NULL in our dataset, it because my friends have not seen the new movies yet. So, I have replace the NULL value to the median value of 3 in rating.
+
+
+### Replace NULL to "3"
+```{r}
+library(tidyr)
+data<-gather(movie_data,movies,rating,-respondent)
+data$rating<- ifelse(data$rating=='NULL', '3',data$rating)
+data$rating
+
+data
+```
+
+
+### Sort the rate from High to Low.
+```{r}
+library(dplyr)
+group<-group_by(data, movies) %>%
+    arrange(desc(rating))
+group
+```
+From the above table, I can see that F_F_Nine and dont_breath_two win the highest rating in this dataset.
+The respondent is removed from the group for plotting purpose.
+```{r}
+g<-group[,-1]
+g
+
+```
+
+
+```{r}
+ggplot(g, aes(x = movies,rating)) +
+  geom_col() +
+  ggtitle('The Popular Movies')+
+  theme_classic()
+```
+
+Each Block shows the rating, and the highest rating 5 is square, and as the rating gets lower, the height of cubic gets lower.
+According to the chart, we can see that F_F_Nine won among the movies with 5+5+4+4+4 = 22 ratings. Dont_Breath_two won the second position which is slightly higher than rougue_hostage. Shang_Chi gets the worst rate among the movies, and I'm definitely going to watch Shang_Chi and find out why is this given the worst rate by my friends. 
