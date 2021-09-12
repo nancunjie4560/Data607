@@ -1,0 +1,130 @@
+---
+title: "Assignment3_Chunjie_Nan"
+author: "Chunjie Nan"
+date: "9/12/2021"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### 1. Using the 173 majors listed in fivethirtyeight.com’s College Majors dataset [https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/], provide code that identifies the majors that contain either "DATA" or "STATISTICS"
+
+
+```{r}
+library(stringr)
+url<-"https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/majors-list.csv"
+major<-read.csv(url)
+major<-data.frame(major)
+head(major)
+str(major)
+# There are 174 observations and 3 variables.
+
+data_stat<-grep("DATA|STATISTICS", major$Major, value=F ,ignore.case = TRUE ) 
+data_stat
+# row 44,52,59 are the majors have data or statistics
+
+
+major[c(44,52,59),]
+```
+
+There are 3 majors contain either DATA or STATISTICS, included "Management Information Systems and Statistics","Computer Programming and Data Processing","Statistics and Decision Science".
+
+
+
+
+
+
+
+### 2 Write code that transforms the data below:
+
+[1] "bell pepper"  "bilberry"     "blackberry"   "blood orange"
+
+[5] "blueberry"    "cantaloupe"   "chili pepper" "cloudberry"  
+
+[9] "elderberry"   "lime"         "lychee"       "mulberry"    
+
+[13] "olive"        "salal berry"
+
+Into a format like this:
+
+c("bell pepper", "bilberry", "blackberry", "blood orange", "blueberry", "cantaloupe", "chili pepper", "cloudberry", "elderberry", "lime", "lychee", "mulberry", "olive", "salal berry")
+
+
+
+```{r}
+fruit<-c("bell pepper", "bilberry", "blackberry", "blood orange", "blueberry", "cantaloupe", "chili pepper", "cloudberry", "elderberry", "lime", "lychee", "mulberry", "olive", "salal berry")
+```
+
+```{r}
+dput(fruit)
+```
+
+
+
+
+The two exercises below are taken from R for Data Science, 14.3.5.1 in the on-line version:
+### 3 Describe, in words, what these expressions will match:
+
+
+
+(.)\1\1  
+The same letters repeats 3times.
+
+"(.)(.)\\2\\1"
+two pair letters repeats in symmetrical reverse.
+
+(..)\1
+two pair letters repeats twice.
+
+"(.).\\1.\\1"
+the same letter repeats 3 times, and separated by any letter.
+
+
+"(.)(.)(.).*\\3\\2\\1"
+
+three pair letters repeats in symmetrical reverse.
+
+
+
+
+
+### 4 Construct regular expressions to match words that:
+Start and end with the same character.
+Contain a repeated pair of letters (e.g. "church" contains "ch" repeated twice.)
+Contain one letter repeated in at least three places (e.g. "eleven" contains three "e"s.)
+
+
+```{r}
+library(stringr)
+data("fruit")
+data<-data.frame(fruit)
+head(fruit)
+```
+The fruit data from stringr library is used for this problem set.
+
+
+```{r}
+# Start and end with the same character.
+str_view(fruit, "^(.).*\1$", match = TRUE)
+# it seems no character in the fruit data set has the same letter start and end.
+```
+
+
+
+```{r}
+# Contain a repeated pair of letters (e.g. "church" contains "ch" repeated twice.)
+str_view(fruit, "(..).*\\1", match = TRUE)
+```
+
+
+
+```{r}
+# Contain one letter repeated in at least three places (e.g. "eleven" contains three "e"s.)
+str_view(fruit, "(.).*\\1.*\\1", match = TRUE)
+```
+
+
