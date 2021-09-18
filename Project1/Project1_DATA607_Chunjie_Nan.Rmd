@@ -1,0 +1,107 @@
+---
+title: "Project1_DATA607_Chunjie_Nan"
+author: "Chunjie Nan"
+date: "9/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+In this project, you’re given a text file with chess tournament results where the information has some structure. Your job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players:Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents For the first player, the information would be:Gary Hua, ON, 6.0, 1794, 1605 1605 was calculated by using the pre-tournament opponents’ ratings of 1436, 1563, 1600, 1610, 1649, 1663, 1716, and dividing by the total number of games played.
+If you have questions about the meaning of the data or the results, please post them on the discussion forum. Data science, like chess, is a game of back and forth…
+The chess rating system (invented by a Minnesota statistician named Arpad Elo) has been used in many other contexts, including assessing relative strength of employment candidates by human resource departments.
+You may substitute another text file (or set of text files, or data scraped from web pages) of similar or greater complexity, and create your own assignment and solution. You may work in a small team. All of your code should be in an R markdown file (and published to rpubs.com); with your data accessible for the person running the script.
+
+
+
+
+### Import Data
+
+```{r}
+data<-read.csv("https://raw.githubusercontent.com/nancunjie4560/Data607/master/Project1/tournamentinfo.txt")
+# remove the header that has X......
+
+data<-read.csv("https://raw.githubusercontent.com/nancunjie4560/Data607/master/Project1/tournamentinfo.txt",header = F)
+
+summary(data)
+head(data)
+```
+the summary shows 196 of observations in the dataset. However, head() tells that one result takes 3 observations in the data. Also, row 1 to row 4 need to get removed which are the header of the data.
+
+
+
+```{r}
+data<-data[-c(1:4),]
+head(data) # row 1 to 4 are removed. 
+tail(data)
+```
+The Players' names are located at 1+3nth row. For example, Dakshesh is on the forth row which is 1+3x1=4, when n=1. The ratings are located at 2+3nth row. Extracting the rows by names and ratings.
+
+```{r}
+players<-data[seq(1, length(data),3)]
+ratings<-data[seq(2, length(data),3)]
+
+```
+I can see there are 64 players and ratings. 
+
+```{r}
+library(stringr)
+number <- as.integer(str_extract(players, "\\d+"))
+player_name <- str_trim(str_extract(players, "(\\w+\\s){2,3}"))
+state <- str_extract(ratings,"\\w+")
+points <- as.numeric(str_extract(players, "\\d+\\.\\d+"))
+rating <- as.integer(str_extract(str_extract(ratings, "[^\\d]\\d{3,4}[^\\d]"), "\\d+"))
+Opponents <- str_extract_all(str_extract_all(players, "\\d+\\|"), "\\d+")
+
+```
+
+
+
+### Find out the Average Opponents Ratings
+```{r}
+
+Opponent_rating <- numeric(length(data)/3)
+for (i in 1:(length(data) / 3)) {Opponent_rating[i] <- mean(rating[as.numeric(unlist(Opponents[number[i]]))])}
+
+
+```
+### Create a Data Frame
+
+```{r}
+library(data.table)
+frame<-data.frame(number ,player_name,state ,points,rating, Opponent_rating)
+data.table(frame)
+
+```
+
+### Plot
+
+```{r}
+library(ggplot2)
+
+ggplot(data=frame, aes(x=Opponent_rating,y=points))+
+  geom_point()
+
+  
+```
+
+
+
+From the above plot, I can find out that Opponent ratings and points may be positively correlated.
+
+### Export to CSV file
+```{r}
+write.table(frame, file="chess.csv")
+
+```
+
+
+
+
+
+
+
+
+
+
