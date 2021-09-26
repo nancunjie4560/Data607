@@ -2,7 +2,9 @@
 title: "Week5_Assignement_Data607_Chunjie_Nan"
 author: "Chunjie Nan"
 date: "9/25/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 
@@ -14,10 +16,12 @@ library(dplyr)
 library(tidyr)
 vaccine<-read.csv("https://raw.githubusercontent.com/nancunjie4560/Data607/master/israeli_vaccination_data_analysis_start%20(1)%20(1).csv",header=TRUE, sep=",")
 
+#  select the rows for the data
 vaccine<-data.frame(vaccine,stringsAsFactors = FALSE)
 head(vaccine)
 vaccine<-vaccine[1:5,]
 
+# rename the variables
 vaccine<-rename(vaccine,'Age Range'='Age', 'Unvaccinated Population' = Population.. , 'Vaccinated Population' = X, 'Unvaccinated Hospitalize per 100k'= Severe.Cases, 'Vaccinated Hospitalize per 100k' = X.1, 'Efficacy vs Severe disease' = Efficacy)
 
 
@@ -50,7 +54,8 @@ str(data)
 
 ### Caculation
 
-(1) Do you have enough information to calculate the total population?  What does this total population represent?
+
+*(1) Do you have enough information to calculate the total population?  What does this total population represent?*
 
 ```{r}
 
@@ -65,17 +70,15 @@ total_population<-sum(pop_lower50,pop_50above)
 total_population
 ```
 
-Yes, I believe there are enough information to calculate the total of Israel population, and the total population is 7155090.
-first, I found that the population of age less than 50. The given information shows that 96.3% of Israel people either get
-fully vaccinated or not vaccinated at all. I figure out that 3.7% of population of whose age is less than 50 may get one vaccine shot. 
-From these info I can calculate the total population of whose age is less than 50. The same work has done to calculate the population of whose age is more than 50. sum up these to rage of age, I can calculate the total population of Israel. 
+
+Yes, I believe there is enough information to calculate the total Israel population, and the total population is 7155090. first, I found that the population of age less than 50. The given information shows that 96.3% of Israel's people are either get fully vaccinated or not vaccinated at all. I figure out that 3.7% of the population of whose age is less than 50 may get one vaccine shot. From this info, I can calculate the total population of whose age is less than 50. The same work has been done to calculate the population whose age is more than 50. sum up these to the range of age, I can calculate the total population of Israel. 
 
 
 
 
 
+*(2) Calculate the Efficacy vs. Disease; Explain your results.*
 
-(2) Calculate the Efficacy vs. Disease; Explain your results.
 Efficacy vs. severe disease = 1 - (% fully vaxed severe cases per 100K / % not vaxed severe cases per 100K)
 
 
@@ -107,36 +110,35 @@ data$`Efficacy vs Severe disease`[2]
 
 
 Use the above Formula: Efficacy vs. severe disease = 1 - (% fully vaxed severe cases per 100K / % not vaxed severe cases per 100K)
-
-Found that the Efficacy for age less than 50 is 91.837%, and the Efficacy for age more than 50 is 85.208%. These two numbers are pretty high that show the vaccinations are very effective according to the Efficacy vs. severe disease rate calculations. 
-
+Found that the Efficacy for age less than 50 is 91.837%, and the Efficacy for age more than 50 is 85.208%. These two numbers are pretty high that shows the vaccinations are very effective according to the Efficacy vs. severe disease rate calculations. 
 
 
 
+*(3) From your calculation of efficacy vs. disease, are you able to compare the rate of severe cases in unvaccinated individuals to that in vaccinated individuals?*
 
 
-(3) From your calculation of efficacy vs. disease, are you able to compare the rate of severe cases in unvaccinated individuals to that in vaccinated individuals?
 
-Yes, from the Efficacy calculation, I can see following hospitalized patterns. 
+Yes, from the Efficacy calculation, I can see the following hospitalized patterns. 
 
-
-for those whose age is less than 50, 0.3% of them who has vaccinated are hospitalized.
-for those whose age is less than 50, 3.8% of them who hasn't vaccinated are hospitalized.
-
-for those whose age is more than 50, 13.59% of them who has vaccinated are hospitalized.
-for those whose age is more than 50, 91.89% of them who hasn't vaccinated are hospitalized. 
-
-
+for those whose age is less than 50, 0.3% of them who have been vaccinated are hospitalized. 
+for those whose age is less than 50, 3.8% of them who haven't been vaccinated are hospitalized.
+for those whose age is more than 50, 13.59% of them who have been vaccinated are hospitalized. 
+for those whose age is more than 50, 91.89% of them who haven't been vaccinated are hospitalized. 
 ```{r}
 
-barplot(c('Hospital Rate age > 50'=unvac_hos_rate_50above, 'Hospital Rage age < 50'=unvac_hos_rate_less50),ylab = 'Hospital Rate',ylim=range(pretty(c(0, 100))))
+barplot(c('age > 50'=unvac_hos_rate_50above, 'age < 50'=unvac_hos_rate_less50),main='Unvaccinated Hospital Rate',ylab = 'Hospital Rate',ylim=range(pretty(c(0, 100))))
 
 ```
 
 
 
-The vaccination works very effective for whose age more than 50, since hospitalization rate is dramatically decreased for those who vaccinated.
-However, the vaccination shows less difference of hospitalization for those whose age is less than 50. 
-Even though the vaccination shows less difference for those whose age is less than 50, I believe everyone should get the vaccination to avoid spread to the people whose age is more than 50 because it is huge risk for older than 50 year old people. 
+
+The vaccination works very effectively for those aged more than 50 since the hospitalization rate is dramatically decreased for those who are vaccinated. However, the vaccination shows less difference of hospitalization for those whose age is less than 50. Even though the vaccination shows less difference for those whose age is less than 50, I believe everyone should get the vaccination to avoid spread to the people whose age is more than 50 because it is a huge risk for older than 50-year-old people. 
+
+
+
+
+
+
 
 
