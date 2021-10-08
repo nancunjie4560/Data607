@@ -1,7 +1,7 @@
 [
   {
   "title" : "Practical Data Science with R",
-  "author" : ["Nina Zumel", "John Mount"],
+  "author" : "Nina Zumel", "John Mount",
   "year" : "Dec 2019",
   "price" : "$34.99",
   "rating" : "4.75/5",
@@ -17,7 +17,7 @@
   },
   {
   "title" : "Text Mining with R:A Tidy Approach",
-  "author" : ["Julia Silge","David Robinson"],
+  "author" : "Julia Silge","David Robinson",
   "year" : "Jul 2017",
   "price" : "$21.49",
   "rating" : "4.5/5",
