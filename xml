@@ -5,7 +5,7 @@
 <author>Nina Zumel,John Mount</author>
 <year>Dec 2019</year>
 <price>$34.99</price>
-<amazon rating>4.75/5</amazon rating>
+<rating>4.75/5</rating>
 <language>English</language>  
 </book>
 <book>
@@ -13,7 +13,7 @@
 <author>Julian J.Faraway</author>
 <year>Jul 2014</year>
 <price>$46.11</price>
-<amazon rating>4.75/5</amazon rating>
+<rating>4.75/5</rating>
 <language>English</language>  
 </book>
 <book>
@@ -21,7 +21,7 @@
 <author>Julia Silge, David Robinson</author>
 <year>Jul 2017</year>
 <price>$21.49</price>
-<amazon rating>4.5/5</amazon rating>
+<rating>4.5/5</rating>
 <language>English</language>  
 </book> 
 </Top_Three_Books>
