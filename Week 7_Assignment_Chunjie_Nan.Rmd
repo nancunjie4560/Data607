@@ -1,0 +1,63 @@
+---
+title: "Week 7_Assignment_Chunjie_Nan"
+author: "Chunjie Nan"
+date: "10/7/2021"
+output: html_document
+---
+
+
+Pick three of your favorite books on one of your favorite subjects. At least one of the books should have more than one author. For each book, include the title, authors, and two or three other attributes that you find interesting.
+
+Take the information that you’ve selected about these three books, and separately create three files which store the book’s information in HTML (using an html table), XML, and JSON formats (e.g. “books.html”, “books.xml”, and “books.json”). To help you better understand the different file structures, I’d prefer that you create each of these files “by hand” unless you’re already very comfortable with the file formats.
+
+Write R code, using your packages of choice, to load the information from each of the three sources into separate R data frames. Are the three data frames identical?
+
+
+### HTML
+```{r}
+library(dplyr)
+library(XML)
+htmlbook <- readLines("https://raw.githubusercontent.com/nancunjie4560/Data607/master/HTML") %>%  
+  htmlParse() %>% 
+  readHTMLTable()%>% 
+  data.frame()
+
+colnames(htmlbook)<-c('Title','Author','Release Year','Price','Amazon Rating','Language')
+htmlbook
+
+```
+
+
+
+
+### XML
+
+```{r}
+
+
+xmlbook<-readLines("https://raw.githubusercontent.com/nancunjie4560/Data607/master/xml")%>%
+  xmlParse()%>%
+  xmlToDataFrame()
+
+xmlbook 
+```
+
+
+
+### JSON
+
+```{r}
+library(rjson)
+library(RCurl)
+library(jsonlite)
+json<-readLines("https://raw.githubusercontent.com/nancunjie4560/Data607/master/json")
+jsonbook<-paste(json, collapse = '')%>%
+  fromJSON()
+jsonbook
+```
+
+
+In conclusion, the dataframes are identical for HTML, XML, and JSON. For HTML, I had to rename the variables, and the XML is very straight forward. 
+However, for running JSON() function, need to load the jsonlite(), not the JSONIO(). Because JSONIO() converts a list to a list; but we want a data frame, not the list. Therefore, run fromJSON() with jsonlite() library is the correct option.
+
+
