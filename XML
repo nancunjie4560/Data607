@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?> 
-<My Top Three Books>
-
 <book>
 <Title>Practical Data Science with R</Title>
 <Author>Nina Zumel,John Mount</Author>
@@ -9,7 +7,6 @@
 <Amazon Rating>4.7/5</Amazon Rating>
 <Language>English</Language>
 </book>
-
 <book>
 <Title>Linear Models with R</Title>
 <Author>Julian J.Faraway</Author>
@@ -18,7 +15,6 @@
 <Amazon Rating>4.7/5</Amazon Rating>
 <Language>English</Language>
 </book>
-
 <book>
 <Title>Text Mining with R: A Tidy Approach</Title>
 <Author>Julia Silge, David Robinson</Author>
@@ -28,4 +24,3 @@
 <Language>English</Language>
 </book> 
 
-<My Top Three Books>
