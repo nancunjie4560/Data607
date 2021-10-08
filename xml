@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<Top_Three_Books>
+<book>
+<title>Practical Data Science with R</title>
+<author>Nina Zumel,John Mount</author>
+<year>Dec 2019</year>
+<price>$34.99</price>
+<amazon rating>4.75/5</amazon rating>
+<language>English</language>  
+</book>
+<book>
+<title>Linear Models with R</title>
+<author>Julian J.Faraway</author>
+<year>Jul 2014</year>
+<price>$46.11</price>
+<amazon rating>4.75/5</amazon rating>
+<language>English</language>  
+</book>
+<book>
+<title>Text Mining with R: A Tidy Approach</title>
+<author>Julia Silge, David Robinson</author>
+<year>Jul 2017</year>
+<price>$21.49</price>
+<amazon rating>4.5/5</amazon rating>
+<language>English</language>  
+</book> 
+</Top_Three_Books>
