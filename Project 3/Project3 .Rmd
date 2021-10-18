@@ -1,0 +1,237 @@
+
+---
+title: "Project 3"
+author: "Chunjie Nan, Jiho Kim, Hazal Gunduz"
+date: "10/16/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Background
+
+**What are the most valued data science skills?**
+
+The purpose of the project was to effectively collaborate on acquiring appropriate datasets then tidying and transforming to analyze and visualize the dataset in effort to answer the questions. 
+
+Data Source:
+
+1)	“Data Scientist Jobs” from Kaggle (url: https://www.kaggle.com/andrewmvd/data-scientist-jobs) that contains information on Job title, Salary and Description which would explain what skills are highly desired.
+
+2)	“The most in Demand Skills for Data Scientists” from Kaggle (url: https://www.kaggle.com/discdiver/the-most-in-demand-skills-for-data-scientists/data) that contains general data scientists' skills that are desired by the employers. 
+
+## Approach
+
+1. **Acquiring Data** : Finding the appropriate dataset and uploading it to Github as a csv file so that they can be read into rstudio for tidying and transforming.
+
+2. **Tidy and Transform** : Using numerous r functions and packages such as dplyr and tidytext, data frames containing relevant information was extracted for analysis.
+
+3. **Visualize and Analysis** : The plots were generated regarding general technical skills and desired programming languages using ggplot packages.
+
+4. **Conclusion** : General insight and conclusion were drawn from the data.
+
+## Loading Packages
+```{r}
+library(dplyr)
+library(tidytext)
+library(ggplot2)
+library(data.table)
+library(stringr)
+```
+
+## Import Data 
+
+The data was uploaded to Github in csv file so that it can be reproduced.
+
+```{r}
+#"Data Scientist Jobs"
+data1<-fread('https://raw.githubusercontent.com/nancunjie4560/Data607/master/Project%203/DataScientist%202.csv')
+
+#The most in Demand Skills for Data Scientists"
+url <- 'https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/Project%203/ds_general_skills_revised.csv'
+skilldata <- read.csv(url)
+skilldata <- as.data.frame(skilldata)
+
+
+
+```
+
+
+```{r}
+summary(is.na(data1))
+summary(is.na(skilldata))
+```
+According to the summary function,  there is no NA within the two dataset. Good to move on for the next steps. 
+
+## Tidy and Transform
+
+Text Mining For The Most Appeared Skillsets.
+
+```{r}
+
+job_description<-data1$`Job Description`
+
+description<-tibble(text=job_description)
+
+description <- description %>% 
+                  unnest_tokens(output = word, input = text) 
+
+description_counts <- description %>% 
+  count(word, sort = TRUE)
+description_counts<-rename(description_counts, Counts=n)
+
+```
+
+According to the edx.org, there are 9 top programming languages for data science
+[linked phrase](https://blog.edx.org/9-top-programming-languages-for-data-science)
+On top of these, We added a couple more languages which are considered as familiar languages for data scientists. 
+
+Python, SQL, R, Java, Git, C, MATLAB, Excel, JavaScript, Julia, Scala, SAS
+
+```{r}
+Python<-description_counts%>%
+          filter(word == 'python'| word ==  'Python'| word =='PYTHON')
+
+SQL<-description_counts%>%
+          filter(word == 'SQL'| word == 'sql'| word =='Sql')
+
+R<-description_counts%>%
+          filter(word == 'R'| word == 'r')
+
+Java<-description_counts%>%
+          filter(word == 'Java'| word == 'java'| word =='JAVA')
+
+Git<-description_counts%>%
+          filter(word == 'Git'| word == 'git'| word =='GIT')
+
+C<-description_counts%>%
+          filter(word == 'C'| word == 'c')
+
+MATLAB<-description_counts%>%
+          filter(word == 'MATLAB'| word == 'matlab'| word =='Matlab')
+
+Excel<-description_counts%>%
+          filter(word == 'Excel'| word == 'excel'| word =='EXCEL')
+
+Java_Script <- description_counts%>%
+          filter(word == 'Javascript'| word == 'JAVASCRIPT'| word=='JavaScript' | word == 'javascript')
+
+
+Julia<-description_counts%>%
+          filter(word == 'JULIA'| word == 'Julia'| word =='julia')
+
+
+Scala<-description_counts%>%
+          filter(word == 'Scala'| word == 'SCALA'| word =='scala')
+
+
+SAS<-description_counts%>%
+          filter(word == 'SAS'| word == 'Sas'| word =='sas')
+
+# Combine the lanugage data
+
+total<-rbind(Python,SQL,R,Java,Git,C,MATLAB,Excel,Java_Script,Julia,Scala,SAS)
+
+total<-total%>%
+mutate(percent = total$Counts/sum(total$Counts))
+
+```
+
+Since the main language for this class is R, I'd like to find out which libraries in R are the most useful libraries.
+According to the Udacity, ggplot2, dplyr, caret, knitr, tidyverse, are the best R packages for data science. Also, I have added a few of important library keywords. such as shiny, plotly, and XGBoost.
+
+[Linked Phrase]('https://www.udacity.com/blog/2021/01/best-r-packages-for-data-science.html')
+
+```{r}
+ggplot2<-description_counts%>%
+          filter(word == 'ggplot2'| word ==  'GGPLOT2'| word =='Ggplot2')
+
+dplyr<-description_counts%>%
+          filter(word == 'dplyr'| word == 'dplyr')
+
+caret<-description_counts%>%
+          filter(word == 'caret'| word == 'Caret'| word =='CARET')
+
+knitr<-description_counts%>%
+          filter(word == 'knitr'| word == 'Knitr'|word =='KNITR')
+
+tidyverse<-description_counts%>%
+          filter(word == 'tidyverse'| word == 'Tidyverse'| word =='TIDYVERSE')
+
+
+shiny<-description_counts%>%
+          filter(word == 'Shiny'| word == 'SHINY'|word =='shiny')
+
+
+plotly<-description_counts%>%
+          filter(word == 'plotly'| word == 'Plotly'|word =='PLOTLY')
+
+
+
+XGBoost<-description_counts%>%
+          filter(word == 'XGBoost'| word == 'Xgboost'|word =='xgboost')
+
+
+R_libraries<-rbind(ggplot2, dplyr, caret, knitr, tidyverse,shiny, plotly, XGBoost)
+
+
+
+R_libraries<-R_libraries%>%
+    mutate(percent = R_libraries$Counts/sum(R_libraries$Counts))
+
+```
+
+The general skills that are desired by employers are transformed to "digestible" format for visualization and analysis.
+
+```{r}
+skilldata <- skilldata[1:15,1:5]
+skilldata[ , c(2,3,4,5)]  <- apply(skilldata[ , c(2,3,4,5)], 2, function(x) as.numeric(str_remove(x, ",")))
+
+skilldata <- skilldata%>%
+  mutate(total = rowSums(. [2:5]))%>%
+  arrange(desc(total))
+
+```
+
+
+## Plot Programming Languages For Data Science
+
+```{r}
+ggplot(total, aes(x=reorder(word,-percent), y=percent, fill=word)) +
+  geom_bar(stat="identity")+
+  theme_minimal()+
+  geom_text(aes(label=Counts))+
+  xlab('Language')
+  
+```
+
+
+## Plot R Libraries For Data Science
+```{r}
+
+ggplot(R_libraries, aes(x=reorder(word,-percent), y=percent, fill=word)) +
+  geom_bar(stat="identity")+
+  theme_minimal()+
+  geom_text(aes(label=Counts))+
+  xlab('R Libraries')
+  
+```
+
+## Plot for general desired skills for data scientists.
+```{r}
+ggplot(skilldata, aes(x=Keyword, y = total))+geom_bar(stat='identity')+
+  geom_col(fill = "#00abff")+coord_flip()+
+  labs(title='General Desired Skills For Data Scientists', x="",y="")
+```
+
+# Text Analysis
+
+There are many skills and skill-sets that employers are looking for when hiring a data-scientist. Given that Data Science is a multidisciplinary field, it is only fitting that there are both Technology based skills and Soft skills that companies look for in a data science. And, it's necessary to know the best 9-10 languages. SQL, Python, and R were the most desired programming languages for data scientists and shiny and plotly were the most popular R libraries among the data scientists. When we look at the most desired general skilled graph, top skills are analysis, machine learning, and statistics followed by computer science indicating that most valuable skills for a data scientist are strong technical skills. 
+
+
+## Conclusion
+
+A data scientist is someone who knows how to extract meaning from and interpret data, which requires both tools and methods from statistics and machine learning. And spends a lot of time in the process of collecting, cleaning, and munging data, because data is never clean. This process requires persistence, statistics, and software engineering skills. 
+
+
+
