@@ -1,0 +1,336 @@
+---
+title: "Week10_Assignment_Chunjie_Nan"
+author: "Chunjie Nan"
+date: "10/30/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidytext)
+library(tidyr)
+library(janeaustenr)
+library(stringr)
+library(ggplot2)
+library(wordcloud)
+library(reshape2)
+```
+
+
+
+Rererence# 
+
+Silge, J., &amp; Robinson, D. (2017). Text mining with R: A tidy approach. O'Reilly Media. 
+
+
+## 1. Textbook Code
+
+### 2.2 Sentiment analysis with inner join
+```{r}
+get_sentiments("afinn")     # value from -5 to 5
+get_sentiments("bing")      # negative and positive
+get_sentiments("nrc")       # emotions etc
+
+```
+
+
+```{r}
+tidy_books <- austen_books() %>%    #from austen book
+  group_by(book) %>%
+  mutate(linenumber = row_number(), #setting line number
+         chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", 
+                                                 ignore_case = TRUE)))) %>%  # detect chapters
+  ungroup() %>%
+  unnest_tokens(word, text)         #unnest token by word
+
+nrc_joy <- get_sentiments("nrc") %>%#using nrc method
+  filter(sentiment == "joy")        #find out the word sentiment equals to joy
+
+tidy_books %>%
+  filter(book == "Emma") %>%        #from austen books get the book named Emma
+  inner_join(nrc_joy) %>%           #apply the joy sentiment in nrc
+  count(word, sort = TRUE) %>%
+  head()
+```
+
+
+
+
+```{r}
+jane_austen_sentiment <- tidy_books %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(book, index = linenumber %/% 80, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+#jane_austen_sentiment
+```
+
+
+
+
+```{r}
+ggplot(jane_austen_sentiment, aes(index, sentiment, fill = book)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~book, ncol = 2, scales = "free_x")
+
+```
+
+
+
+### 2.3 Comparing the three sentiment dictionaries
+
+```{r}
+pride_prejudice <- tidy_books %>% 
+  filter(book == "Pride & Prejudice")
+
+pride_prejudice%>%
+  head()
+
+
+
+afinn <- pride_prejudice %>% 
+  inner_join(get_sentiments("afinn")) %>% 
+  group_by(index = linenumber %/% 80) %>% 
+  summarise(sentiment = sum(value)) %>% 
+  mutate(method = "AFINN")
+
+
+bing_and_nrc <- bind_rows(pride_prejudice %>% 
+                            inner_join(get_sentiments("bing")) %>%
+                            mutate(method = "Bing et al."),
+                          pride_prejudice %>% 
+                            inner_join(get_sentiments("nrc") %>% 
+                                         filter(sentiment %in% c("positive", 
+                                                                 "negative"))) %>%
+                            mutate(method = "NRC")) %>%
+  count(method, index = linenumber %/% 80, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+
+bind_rows(afinn, 
+          bing_and_nrc) %>%
+  ggplot(aes(index, sentiment, fill = method)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~method, ncol = 1, scales = "free_y")
+
+
+get_sentiments("nrc") %>% 
+     filter(sentiment %in% c("positive", 
+                             "negative")) %>% 
+  count(sentiment)
+
+
+get_sentiments("bing") %>% 
+  count(sentiment)
+```
+
+
+
+### 2.4 Most common positive and negative words
+
+```{r}
+bing_word_counts <- tidy_books %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+bing_word_counts
+
+
+
+bing_word_counts %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+
+
+
+custom_stop_words <- bind_rows(tibble(word = c("miss"), 
+                                          lexicon = c("custom")), 
+                               stop_words)
+
+custom_stop_words
+```
+
+
+### 2.5 Wordclouds
+
+```{r}
+tidy_books %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+
+
+tidy_books %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+
+```
+
+
+
+### 2.6 Looking at units beyond just words
+
+```{r}
+PandP_sentences <- tibble(text = prideprejudice) %>% 
+  unnest_tokens(sentence, text, token = "sentences")
+PandP_sentences$sentence[2]
+
+
+
+austen_chapters <- austen_books() %>%
+  group_by(book) %>%
+  unnest_tokens(chapter, text, token = "regex", 
+                pattern = "Chapter|CHAPTER [\\dIVXLC]") %>%
+  ungroup()
+
+austen_chapters %>% 
+  group_by(book) %>% 
+  summarise(chapters = n())
+
+
+
+bingnegative <- get_sentiments("bing") %>% 
+  filter(sentiment == "negative")
+
+wordcounts <- tidy_books %>%
+  group_by(book, chapter) %>%
+  summarize(words = n())
+
+tidy_books %>%
+  semi_join(bingnegative) %>%
+  group_by(book, chapter) %>%
+  summarize(negativewords = n()) %>%
+  left_join(wordcounts, by = c("book", "chapter")) %>%
+  mutate(ratio = negativewords/words) %>%
+  filter(chapter != 0) %>%
+  top_n(1) %>%
+  ungroup()
+```
+
+
+
+
+### My Own Choose from The Harry Potter Book -  Half Blood Price.
+Import the first 
+```{r}
+library(devtools)
+install_github("bradleyboehmke/harrypotter")
+library(harrypotter)
+Title<- c("Half Blood Price")
+Book<-list(half_blood_prince)
+HBP <- tibble()
+
+for(i in seq_along(Title)) {
+        
+        clean <- tibble(chapter = seq_along(Book[[i]]),
+                        text = Book[[i]]) %>%
+             unnest_tokens(word, text) %>%       
+             mutate(book = Title[i]) %>%
+             select(book, everything())
+
+            HBP<- rbind(HBP, clean)
+}
+
+HBP$book <- factor(HBP$book, levels = rev(Title))
+head(HBP)
+tail(HBP)
+```
+
+The Book Half Blood Price has total 30 Chapters. 
+
+
+### Use Loughran as the new sentiment.
+
+```{r}
+HBP %>%
+        right_join(get_sentiments("loughran")) %>%
+        filter(!is.na(sentiment)) %>%
+        count(sentiment, sort = TRUE)
+
+```
+
+
+
+### Plot Bing Sentiment
+
+
+```{r}
+HBP %>%
+        group_by(book) %>% 
+        mutate(word_count = 1:n(),
+               index = word_count %/% 500 + 1) %>% 
+        inner_join(get_sentiments("bing")) %>%
+        count(book, index = index , sentiment) %>%
+        ungroup() %>%
+        spread(sentiment, n, fill = 0) %>%
+        mutate(sentiment = positive - negative,
+               book = factor(book, levels = Title)) %>%
+        ggplot(aes(index, sentiment, fill = book)) +
+          geom_bar(alpha = 0.5, stat = "identity", show.legend = FALSE)
+
+```
+
+
+### The AFFIN and Loughran
+
+```{r}
+AFINN <- HBP %>%
+        group_by(book) %>% 
+        mutate(word_count = 1:n(),
+               index = word_count %/% 500 + 1) %>% 
+        inner_join(get_sentiments("afinn")) %>%
+        group_by(book, index) %>%
+        summarise(sentiment = sum(value)) %>%
+        mutate(method = "AFINN")
+
+AFINN
+```
+
+```{r}
+LOUG <- HBP %>%
+            group_by(book) %>% 
+            mutate(word_count = 1:n(),
+                  index = word_count %/% 500 + 1) %>% 
+            inner_join(get_sentiments("loughran")) %>%
+            mutate(method = "loughran") %>%
+count(book, method, index = index , sentiment) %>%
+        ungroup() %>%
+        spread(sentiment, n, fill = 0) %>%
+        mutate(sentiment = positive - negative) %>%
+        select(book, index, method, sentiment)
+
+
+bind_rows(LOUG, AFINN) %>%
+        ungroup() %>%
+        mutate(book = factor(book, levels = Title)) %>%
+  ggplot(aes(index, sentiment, fill = method)) +
+  geom_bar(alpha = 0.7, stat = "identity", show.legend = FALSE) +
+  facet_grid(book ~ method)
+
+```
+
+
+
+
+In conclusion, compare the Afinn with Loughran, the AFinn looks more volatile than Loughran method due to most of the loughran sentiment in in between +12.5 and - 12.5. Also, the Analysis tells that loughran distributed more negative sentiment value than the Afinn. It looks Afinn outperformed the loughran in this case. 
+
+
+
+
+
+
