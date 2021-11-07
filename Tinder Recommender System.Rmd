@@ -1,0 +1,91 @@
+---
+title: "Tinder Recommender System"
+author: "Chunjie Nan"
+date: "11/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Discussion - Tinder Recommender Systems
+
+
+
+### Overview
+
+Your task is to analyze an existing recommender system that you find interesting. You should:
+
+Perform a Scenario Design analysis as described below. Consider whether it makes sense for your selected recommender system to perform scenario design twice, once for the organization (e.g. Amazon.com) and once for the organization’s customers.
+
+Attempt to reverse engineer what you can about the site, from the site interface and any available information that you can find on the Internet or elsewhere.
+
+Include specific recommendations about how to improve the site’s recommendation capabilities going forward.
+
+
+
+### Tinder
+
+Tinder is an online dating and geosocial networking application. Users anonymously "swipe right" to like or "swipe left" to dislike other users' profiles, which include their photo, a short bio, and a list of their interests. Tinder uses a "double opt-in" system where both users must have "swiped right" to match before they can exchange messages
+
+
+
+### Tinder's Recommender System
+
+personalized recommendation approach being developed at Tinder, called TinVec. TinVec embeds users’ preferences into vectors leveraging on the large amount of swipes by Tinder users. 
+
+
+
+### Scenario Design: Tinder
+
+1. Who are your target users?
+
+People who want to build relationships via internet.
+
+2. What are their key goals?
+
+Tinder’s main purpose to make people meet, to establish meaningful relationships.
+The goal for users, according to Badeen, is that they forget about the person they swiped on within three seconds. 
+But Tinder doesn’t. They study who members swipe on, who they match with. Then they look at “reactivation.” 
+
+
+3. How can you help them accomplish those goals?
+
+I would like to see the comeback users who already matched a partner, and see the how long was the relationship last. Use machine learning to verify an individual user what factors affected the relationships period to build a better recommendation to the comeback users. 
+
+
+
+### Reverse Engineering Tinder’s Recommender System
+
+
+The users' online behavior and the set of data it is given to process, certain cultural aspects will be highlighted while others are left out. Some information of a certain group is prioritized, which affords them greater visibility, while others are rendered invisible. Through this, algorithms play a crucial role in overall participation in public life.
+
+
+each of the Tinder algorithms is programmed to collect a set of data that are tabulated accordingly to contribute a relevant output. These results then work together to improve the overall user-experience, which is achieved when there is a notable increase of matches and messages.
+
+
+Tinder implemented VecTec: a machine-learning algorithm that is partly paired with artificial intelligence (AI). (Liu, 2017) Algorithms are designed to develop in an evolutionary manner, meaning that the human process of learning (seeing, remembering, and creating a pattern in one’s mind) aligns with that of a machine-learning algorithm, or that of an AI-paired one. An AI-paired algorithm can even develop its own point of view on people.
+
+
+Tinder users are defined as 'Swipers' and 'Swipes'. Each swipe made is mapped to an embedded vector in an embedding space. The vectors implicitly represent possible characteristics of the Swipe, such as activities (sport), interests (whether you like pets), environment (indoors vs outdoors), educational level, and chosen career path. If the tool detects a close proximity of two embedded vectors, meaning the users share similar characteristics, it will recommend them to another. Whether it’s a match or not, the process helps Tinder algorithms learn and identify more users whom you are likely to swipe right on.
+
+TinVec is assisted by Word2Vec. Whereas TinVec’s output is user embedding, Word2Vec embeds words. This means that the tool does not learn through large numbers of co-swipes, but rather through analyses of a large corpus of texts. It identifies languages, dialects, and forms of slang. Words that share a common context are closer in the vector space and indicate similarities between their users' communication styles. Through these results, similar swipes are clustered together and a user’s preference is represented through the embedded vectors of their likes. Again, users with close proximity to preference vectors will be recommended to each other.
+ 
+ 
+Tinder algorithms learns a user’s preferences based on their swiping habits and categorizes them within clusters of like-minded Swipes. A user’s swiping behavior in the past influences in which cluster the future vector gets embedded. New users are evaluated and categorized through the criteria Tinder algorithms have learned from the behavioral models of past users.
+
+
+
+
+### Improving Tinder’s Recommender System
+
+Tinder should not be limited on looking for a partner, it can build a good platform to find a community. Not a just individual but a group. such as reading community, workout community. Since Tinder has an individual's info, it can recommend an individual to join a community group to spend their time with people who has the same interests and habits.  
+
+
+### Reference:
+
+[Tinder: How Does One Of The Largest Recommendation Engines Decide Who You'll See Next?](http://highscalability.com/blog/2016/1/27/tinder-how-does-one-of-the-largest-recommendation-engines-de.html)
+[PERSONALIZED USER RECOMMENDATIONS AT TINDER](https://mlconf.com/sessions/personalized-user-recommendations-at-tinder-the-t/)
+[The Biases we feed to Tinder algorithms](https://www.diggitmagazine.com/articles/biases-we-feed-tinder-algorithms)
