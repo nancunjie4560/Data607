@@ -1,0 +1,67 @@
+---
+title: "DATA607_Final Project_Chunjie_Nan"
+author: "Chunjie Nan"
+date: "12/4/2021"
+output: 
+  html_document:
+    code_download: yes
+    code_folding: hide
+    highlight: pygments
+    number_sections: yes
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reasearch Question:
+**Is increase in life expectancy associated with higher economic growth?**
+
+The week 2 blackboard discussion triggered my interest in the relationships between economy and life expectancy, as I have mentioned on the discussion board, I believe the strength of a country’s economy is the proxy measure of life expectancy. In this project, I would like to do an analysis to find out my previous thought of the proxy measure is correct or not. 
+
+
+### Loading Data
+
+
+Data source:
+
+ 
+
+https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+
+https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?end=2020&start=1960&view=chart
+
+
+
+
+
+
+## Loading Libraries
+
+
+
+
+## Feature Engineering
+
+
+
+
+## Explortary Analysis
+
+
+
+
+## Modeling
+
+
+## Accuracy
+
+
+## Conclusion 
+
+ 
