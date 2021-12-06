@@ -15,53 +15,181 @@ output:
     toc: yes
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## Reasearch Question:
 **Is increase in life expectancy associated with higher economic growth?**
 
-The week 2 blackboard discussion triggered my interest in the relationships between economy and life expectancy, as I have mentioned on the discussion board, I believe the strength of a country’s economy is the proxy measure of life expectancy. In this project, I would like to do an analysis to find out my previous thought of the proxy measure is correct or not. 
+The week 2 blackboard discussion triggered my interest in the relationships between economy and life expectancy, as I have mentioned on the discussion board, I believe the strength of a country’s economy is the proxy measure of life expectancy. In this project, I would like to do an analysis to find out if my previous thought of the proxy measure is correct or not.
+There are many factors may affect the life expectancy. According to the Australian Health department,  [linked phrase][https://www1.health.gov.au/internet/publications/publishing.nsf/Content/oatsih-hpf-2012-toc~tier1~life-exp-wellb~119] there are many factors influence the life expectancy, such as socioeconomic status, including employment, income, education and economic welling; the quality of the health system and the ability of people to access it; health behaviors such as tobacco and excessive alcohol consumption, poor nutrition and lack of exercise; social factors; genetic factors; and environmental factors including overcrowded housing, lack of clean drinking water and adequate sanitation. However, the analysis has not mentioned the density of living, Migrants, Land Area, and Medium Age. Therefore, I'd like to find out if these factors affect the life expectancy or not. 
+
+
+## Loading Libraries
+```{r}
+library(RCurl)
+library(XML)
+library(data.table)
+library(tidyverse)
+library(dplyr)
+library(imputeTS)
+library(ggplot2)
+library(corrplot)
+library(RColorBrewer)
+library(sos)
+require(AER)
+```
+
+
+
+
+
+*Data source*:
+
+The data are from world bank and worldometers. From these two platform, I'm able to find the datasets that I need to work on this project. The world bank data provides the historical data of GDP per capita and the life expectancy. Also, with wragling the worldometers website data, provides the overall population, density, land area, migrants,urban population in 2020. 
+
+https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?end=2020&start=1960&view=chart
+https://www.worldometers.info/world-population/population-by-country/
 
 
 ### Loading Data
 
-
-Data source:
-
- 
-
-https://data.worldbank.org/indicator/SP.DYN.LE00.IN
-
-https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?end=2020&start=1960&view=chart
+```{r}
 
 
+data_gdp<-fread('https://raw.githubusercontent.com/nancunjie4560/Data607/master/Final%20Project/API_NY.GDP.PCAP.CD_DS2_en_csv_v2_3358201%20(1)/API_NY.GDP.PCAP.CD_DS2_en_csv_v2_3358201.csv', header = T)
+
+data_life<-fread('https://raw.githubusercontent.com/nancunjie4560/Data607/master/Final%20Project/API_SP.DYN.LE00.IN_DS2_en_csv_v2_3358200%20(1)/API_SP.DYN.LE00.IN_DS2_en_csv_v2_3358200.csv', header = T)
 
 
+url<-"https://www.worldometers.info/world-population/population-by-country/"
 
+web<- getURL(url)
+data_pop<- htmlParse(web)
+data_pop<-readHTMLTable(data_pop)
+data_pop<-as.data.frame(data_pop)
 
-## Loading Libraries
-
-
+```
 
 
 ## Feature Engineering
 
+My target is the top 10 life expectancy countries from data_life in 2005. 
+Select top 10 life expectancy countries, and limited year to 2019.
+```{r}
+
+life<-data_life%>%
+      group_by(`Country Name`)%>%
+      arrange(desc(`2019`))
+
+life<-life[1:12,c(1,64)]
+
+
+```
+
+The data shows the top 10 countries that have the longest life expectancies are Hong Kong, Japan, Macao, Switzerland, Singapore, Spain, Korean, Italy, Channel Islands, Liechtenstein.
+From the above list, I'm going to extract these countries GDP per capita data from data_gdp and data_pop.
+
+```{r}
+gdp<-data_gdp%>%
+    filter(`Country Code` %in% c('HKG','JPN','MAC','CHE','SGP','ESP','KOR','ITA','CHI','LIE','SWE','NOR'))
+
+gdp<-gdp[1:12,c(1,64)]
 
 
 
-## Explortary Analysis
+```
+
+
+Extract the same 10 countries from data_pop.
+
+```{r}
+pop<-data_pop%>%
+  rename(`Country Name`= example2.Country..or.dependency. ,
+         `Population`= example2.Population..2020.,
+         `Yearly Change`= example2.Yearly.Change,
+         `Net Change`= example2.Net.Change,
+         `Density` = example2.Density..P.KmÂ..,
+         `Area` = example2.Land.Area..KmÂ..,
+         `Migrants` = example2.Migrants..net. ,
+         `Furtality` = example2.Fert..Rate,
+         `Median Age` = example2.Med..Age ,
+         `Urban Population` = example2.Urban.Pop.. ,
+         `World Share` = example2.World.Share)
+
+
+pop<-pop%>%
+    filter(`Country Name` %in% c('Hong Kong','Japan','Macao','Channel Islands','Singapore','Spain','South Korea','Italy','Switzerland','Liechtenstein','Sweden','Norway'))
+
+```
+
+
+
+gather the three data variables in to one set. 
+dropped Liechtenstein and Channel Islands due to missing GDP per capita data.
+```{r}
+
+life_gdp<-merge(life,gdp, by='Country Name')
+pop[3,2]<- life_gdp[5,1]
+pop[7,2]<- life_gdp[2,1]
+pop[10,2]<- life_gdp[7,1]
+data_total<-merge(pop,life_gdp, by='Country Name')
+data_total<-data_total[-c(1,6),-c(2,11)]
 
 
 
 
-## Modeling
+data_total<- data_total %>%
+  rename(`Life Expectancy` = `2019.x`,
+         `GDP per Capita` = `2019.y`)
 
 
-## Accuracy
+```
+
+
+## Correlation
+```{r}
+data_total[] <- lapply(data_total, gsub, pattern =",", replacement = "")
+data_total[] <- lapply(data_total, gsub, pattern ="%", replacement = "")
+
+
+data <- as.data.frame(sapply(data_total, as.numeric),na.omit=T)
+data[,1]<-data_total[,1]
+
+cor(data$`GDP per Capita`,data$`Life Expectancy`)
+matrix<-cor(data[c(1:10),c(2:12)])
+corrplot(matrix, type="lower", order="hclust",
+         col=brewer.pal(n=10, name="RdYlBu"))
+cor(data$`Life Expectancy`,data$Density)
+
+```
+
+According to the Correlation matrix and plot, density shows positively correlated with correction of 0.4, and the GDP per capita shows as almost flat with correlation 0.06
+
+
+
+
+
+## Linear Model
+
+```{r}
+linear_model<- lm(`Life Expectancy` ~ Density + Area + Migrants + `Median Age` + `World Share` + `GDP per Capita`, data = data)
+linear_model
+model_sum<-summary(linear_model)
+MSE<-mean(model_sum$residuals^2)
+MSE
+
+
+```
+According to the calculation, the Mean Square Error for this linear model is 0.046 which is pretty small number that is closed to 0.
+
+
+
 
 
 ## Conclusion 
+
+In conclusion, the linear regression model tells that the GDP per capita is not statistically significant in this model.
+However, The variables, such as Density, Migrants, Median Age are positively correlated with Life Expectancy. Therefore, I cannot confirm that the GDP per capita affects the Life Expectancy in this case. Next time, I'd like to expend the data set, and I believe it may gives me a different result. 
+
 
  
